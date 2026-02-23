@@ -1,10 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setReady(true)
+      }
+    })
+  }, [])
 
   const handleUpdate = async (e) => {
     e.preventDefault()
@@ -21,6 +30,12 @@ export default function ResetPassword() {
 
     setLoading(false)
   }
+
+  if (!ready) return (
+    <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>
+      <p>Verifying your reset link...</p>
+    </div>
+  )
 
   return (
     <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>
