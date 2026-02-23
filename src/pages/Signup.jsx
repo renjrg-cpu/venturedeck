@@ -8,20 +8,22 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage('')
+  e.preventDefault()
+  setLoading(true)
+  setMessage('')
 
-    const { error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({ email, password })
 
-    if (error) {
-      setMessage(error.message)
-    } else {
-      setMessage('Check your email — we sent you a confirmation link!')
-    }
-
-    setLoading(false)
+  if (error) {
+    setMessage(error.message)
+  } else if (data?.user?.identities?.length === 0) {
+    setMessage("An account with this email already exists. Try logging in instead, or reset your password if you've forgotten it.")
+  } else {
+    setMessage('Check your email — we sent you a confirmation link!')
   }
+
+  setLoading(false)
+}
 
   return (
     <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>

@@ -1,23 +1,22 @@
 import { useState } from 'react'
 import { supabase } from '../supabase'
 
-export default function Login() {
-  const [email, setEmail] = useState('')
+export default function ResetPassword() {
   const [password, setPassword] = useState('')
   const [message, setMessage] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e) => {
+  const handleUpdate = async (e) => {
     e.preventDefault()
     setLoading(true)
     setMessage('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.updateUser({ password })
 
     if (error) {
       setMessage(error.message)
     } else {
-      window.location.href = '/profile'
+      setMessage('Password updated! You can now log in with your new password.')
     }
 
     setLoading(false)
@@ -25,23 +24,11 @@ export default function Login() {
 
   return (
     <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>
-      <h1>Welcome back</h1>
-      <p>Log in to your VentureDeck account.</p>
+      <h1>Set a new password</h1>
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleUpdate}>
         <div style={{ marginBottom: 12 }}>
-          <label>Email</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </div>
-
-        <div style={{ marginBottom: 12 }}>
-          <label>Password</label><br />
+          <label>New password</label><br />
           <input
             type="password"
             value={password}
@@ -52,14 +39,11 @@ export default function Login() {
         </div>
 
         <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
-          {loading ? 'Logging in...' : 'Log in'}
+          {loading ? 'Updating...' : 'Update password'}
         </button>
       </form>
 
       {message && <p style={{ marginTop: 16 }}>{message}</p>}
-
-      <p style={{ marginTop: 24 }}>Don't have an account? <a href="/">Sign up</a></p>
-        <p style={{ marginTop: 8 }}><a href="/forgot-password">Forgot your password?</a></p>
     </div>
   )
 }
