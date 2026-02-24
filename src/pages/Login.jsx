@@ -8,20 +8,30 @@ export default function Login() {
   const [loading, setLoading] = useState(false)
 
   const handleLogin = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setMessage('')
+  e.preventDefault()
+  setLoading(true)
+  setMessage('')
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-    if (error) {
-      setMessage(error.message)
+  if (error) {
+    setMessage(error.message)
+  } else {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('is_complete')
+      .eq('id', data.user.id)
+      .single()
+
+    if (profile?.is_complete) {
+      window.location.href = '/directory'
     } else {
       window.location.href = '/profile'
     }
-
-    setLoading(false)
   }
+
+  setLoading(false)
+}
 
   return (
     <>

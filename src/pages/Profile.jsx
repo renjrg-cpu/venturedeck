@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
+import Layout from '../components/Layout'
 
 const UNIVERSITIES = [
   'Politecnico di Milano',
@@ -71,28 +72,38 @@ export default function Profile() {
   }, [])
 
   const handleSave = async (e) => {
-    e.preventDefault()
-    setSaving(true)
-    setMessage('')
+  e.preventDefault()
+  setSaving(true)
+  setMessage('')
 
-    const isComplete = form.full_name && form.bio && form.industry_vertical &&
-                       form.skills && form.startup_vision && form.cofounder_type
+  const isComplete = form.full_name && form.bio && form.industry_vertical &&
+                     form.skills && form.startup_vision && form.cofounder_type
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ ...form, is_complete: !!isComplete })
-      .eq('id', user.id)
+  const { error } = await supabase
+    .from('profiles')
+    .select('is_complete')
+    .eq('id', user.id)
+    .single()
+    .then(async ({ data: existing }) => {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ ...form, is_complete: !!isComplete })
+        .eq('id', user.id)
 
-    if (error) {
-      setMessage(error.message)
-    } else {
-      setMessage(isComplete
-        ? 'Profile saved — you are now visible in the directory.'
-        : 'Draft saved — complete all required fields to appear in the directory.'
-      )
-    }
-    setSaving(false)
-  }
+      if (!error && isComplete && !existing?.is_complete) {
+        window.location.href = '/directory'
+      } else if (!error) {
+        setMessage(isComplete
+          ? 'Profile saved.'
+          : 'Draft saved — complete all required fields to appear in the directory.'
+        )
+      }
+      return { error }
+    })
+
+  if (error) setMessage(error.message)
+  setSaving(false)
+}
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -106,14 +117,7 @@ export default function Profile() {
   )
 
   return (
-    <>
-      <nav className="navbar">
-        <a href="/" className="navbar-logo">VentureDeck</a>
-        <div className="navbar-actions">
-          <a href="/directory" style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase', textDecoration: 'none' }}>Directory</a>
-          <button className="btn-ghost" onClick={handleLogout}>Log out</button>
-        </div>
-      </nav>
+    <Layout>
 
       <div className="page">
         <h1 className="page-title">Your Profile</h1>
@@ -256,6 +260,6 @@ export default function Profile() {
 
         </form>
       </div>
-    </>
+    </Layout>
   )
 }
