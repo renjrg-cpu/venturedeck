@@ -24,42 +24,56 @@ export default function Login() {
   }
 
   return (
-    <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>
-      <h1>Welcome back</h1>
-      <p>Log in to your VentureDeck account.</p>
+    <>
+      <nav className="navbar">
+        <a href="/" className="navbar-logo">VentureDeck</a>
+      </nav>
 
-      <form onSubmit={handleLogin}>
-        <div style={{ marginBottom: 12 }}>
-          <label>Email</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </div>
+      <div className="page">
+        <h1 className="page-title">Welcome back</h1>
+        <p className="page-subtitle">Log in to your account to continue</p>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>Password</label><br />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </div>
+        <form onSubmit={handleLogin}>
+          <div className="field">
+            <label className="field-label">Email</label>
+            <input
+              className="input"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+            />
+          </div>
 
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
-          {loading ? 'Logging in...' : 'Log in'}
-        </button>
-      </form>
+          <div className="field">
+            <label className="field-label">Password</label>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
 
-      {message && <p style={{ marginTop: 16 }}>{message}</p>}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Logging in...' : 'Log in'}
+          </button>
 
-      <p style={{ marginTop: 24 }}>Don't have an account? <a href="/">Sign up</a></p>
-        <p style={{ marginTop: 8 }}><a href="/forgot-password">Forgot your password?</a></p>
-    </div>
+          {message && <p className="message">{message}</p>}
+        </form>
+
+        <hr className="divider" />
+
+        <p style={{ fontSize: 13, color: 'var(--gray-text)' }}>
+          Don't have an account? <a href="/signup">Sign up</a>
+        </p>
+        <p style={{ fontSize: 13, marginTop: 12, color: 'var(--gray-text)' }}>
+          <a href="/forgot-password">Forgot your password?</a>
+        </p>
+      </div>
+    </>
   )
 }

@@ -8,59 +8,71 @@ export default function Signup() {
   const [loading, setLoading] = useState(false)
 
   const handleSignup = async (e) => {
-  e.preventDefault()
-  setLoading(true)
-  setMessage('')
+    e.preventDefault()
+    setLoading(true)
+    setMessage('')
 
-  const { data, error } = await supabase.auth.signUp({ email, password })
+    const { data, error } = await supabase.auth.signUp({ email, password })
 
-  if (error) {
-    setMessage(error.message)
-  } else if (data?.user?.identities?.length === 0) {
-    setMessage("An account with this email already exists. Try logging in instead, or reset your password if you've forgotten it.")
-  } else {
-    setMessage('Check your email — we sent you a confirmation link!')
+    if (error) {
+      setMessage(error.message)
+    } else if (data?.user?.identities?.length === 0) {
+      setMessage("An account with this email already exists. Try logging in instead, or reset your password if you've forgotten it.")
+    } else {
+      setMessage('Check your email — we sent you a confirmation link!')
+    }
+
+    setLoading(false)
   }
 
-  setLoading(false)
-}
-
   return (
-    <div style={{ maxWidth: 400, margin: '100px auto', padding: '0 20px' }}>
-      <h1>Join VentureDeck</h1>
-      <p>Create your account with your personal email.</p>
+    <>
+      <nav className="navbar">
+        <a href="/" className="navbar-logo">VentureDeck</a>
+      </nav>
 
-      <form onSubmit={handleSignup}>
-        <div style={{ marginBottom: 12 }}>
-          <label>Email</label><br />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </div>
+      <div className="page">
+        <h1 className="page-title">Join VentureDeck</h1>
+        <p className="page-subtitle">Create your account to find your cofounder</p>
 
-        <div style={{ marginBottom: 12 }}>
-          <label>Password</label><br />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={{ width: '100%', padding: 8, marginTop: 4 }}
-          />
-        </div>
+        <form onSubmit={handleSignup}>
+          <div className="field">
+            <label className="field-label">Email</label>
+            <input
+              className="input"
+              type="email"
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              required
+            />
+          </div>
 
-        <button type="submit" disabled={loading} style={{ width: '100%', padding: 10 }}>
-          {loading ? 'Creating account...' : 'Sign up'}
-        </button>
-      </form>
+          <div className="field">
+            <label className="field-label">Password</label>
+            <input
+              className="input"
+              type="password"
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="••••••••"
+              required
+            />
+          </div>
 
-      {message && <p style={{ marginTop: 16 }}>{message}</p>}
+          <button type="submit" className="btn-primary" disabled={loading}>
+            {loading ? 'Creating account...' : 'Sign up'}
+          </button>
 
-      <p style={{ marginTop: 24 }}>Already have an account? <a href="/login">Log in</a></p>
-    </div>
+          {message && <p className="message">{message}</p>}
+        </form>
+
+        <hr className="divider" />
+
+        <p style={{ fontSize: 13, color: 'var(--gray-text)' }}>
+          Already have an account? <a href="/">Log in</a>
+        </p>
+      </div>
+    </>
   )
 }
