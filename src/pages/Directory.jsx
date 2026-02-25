@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import Layout from '../components/Layout'
+import Lightbox from '../components/Lightbox'
 
 const COFOUNDER_TYPES = ['All', 'Technical', 'Non-technical', 'Hybrid']
 
@@ -11,6 +12,7 @@ export default function Directory() {
   const [search, setSearch] = useState('')
   const [typeFilter, setTypeFilter] = useState('All')
   const [user, setUser] = useState(null)
+  const [lightboxSrc, setLightboxSrc] = useState(null)
 
   useEffect(() => {
     const init = async () => {
@@ -119,8 +121,24 @@ export default function Directory() {
                     gap: 12,
                     border: '1px solid var(--gray-light)'
                     }}>
-                {/* Name & type */}
+                {/* Avatar + Name & type */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  {profile.avatar_url && (
+                    <img
+                      src={profile.avatar_url}
+                      alt={profile.full_name}
+                      onClick={() => setLightboxSrc(profile.avatar_url)}
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: '50%',
+                        objectFit: 'cover',
+                        cursor: 'zoom-in',
+                        marginRight: 12,
+                        flexShrink: 0
+                      }}
+                    />
+                  )}
                   <a href={`/founder/${profile.id}`} style={{ textDecoration: 'none' }}>
                     <h2 style={{ fontSize: 16, fontFamily: 'var(--font-display)', fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--black)' }}>
                          {profile.full_name}
@@ -187,8 +205,10 @@ export default function Directory() {
               </div>
             ))}
           </div>
-        )}
+          )
+      }
       </div>
+      <Lightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
     </Layout>
   )
 }

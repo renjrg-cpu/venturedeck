@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../supabase'
 import Layout from '../components/Layout'
 
@@ -36,8 +36,11 @@ export default function Profile() {
     cofounder_type: '',
     linkedin_url: '',
     github_url: '',
-    portfolio_url: ''
+    portfolio_url: '',
+    avatar_url: ''
   })
+  const fileInputRef = useRef(null)
+  const [avatarUploading, setAvatarUploading] = useState(false)
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -63,13 +66,40 @@ export default function Profile() {
           cofounder_type: profile.cofounder_type || '',
           linkedin_url: profile.linkedin_url || '',
           github_url: profile.github_url || '',
-          portfolio_url: profile.portfolio_url || ''
+          portfolio_url: profile.portfolio_url || '',
+          avatar_url: profile.avatar_url || ''
         })
       }
       setLoading(false)
     }
     loadProfile()
   }, [])
+
+  const handleAvatarUpload = async (e) => {
+  const file = e.target.files[0]
+  if (!file) return
+  setAvatarUploading(true)
+
+  const ext = file.name.split('.').pop()
+  const fileName = `${user.id}/avatar.${ext}`
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(fileName, file, { upsert: true })
+
+  if (!uploadError) {
+    const { data: urlData } = supabase.storage
+      .from('avatars')
+      .getPublicUrl(fileName)
+
+    const avatar_url = urlData.publicUrl + '?t=' + Date.now()
+    setForm(prev => ({ ...prev, avatar_url }))
+
+    await supabase.from('profiles').update({ avatar_url }).eq('id', user.id)
+  }
+
+  setAvatarUploading(false)
+}
 
   const handleSave = async (e) => {
   e.preventDefault()
@@ -124,7 +154,49 @@ export default function Profile() {
         <p className="page-subtitle">{user.email}</p>
 
         <form onSubmit={handleSave}>
-
+        {/* Avatar */}
+        <div className="field" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
+          <div
+            onClick={() => fileInputRef.current.click()}
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: '50%',
+              border: '1px solid var(--gray-mid)',
+              overflow: 'hidden',
+              cursor: 'pointer',
+              flexShrink: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--gray-light)'
+            }}
+          >
+            {form.avatar_url ? (
+              <img src={form.avatar_url} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span style={{ fontSize: 11, color: 'var(--gray-text)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>Photo</span>
+            )}
+          </div>
+          <div>
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => fileInputRef.current.click()}
+              disabled={avatarUploading}
+            >
+              {avatarUploading ? 'Uploading...' : 'Upload photo'}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={handleAvatarUpload}
+            />
+            <p style={{ fontSize: 11, color: 'var(--gray-text)', marginTop: 8 }}>Click the circle or the button to upload</p>
+          </div>
+        </div>
           <div className="field">
             <label className="field-label">Full name *</label>
             <input

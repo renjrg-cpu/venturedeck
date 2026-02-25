@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Layout from '../components/Layout'
+import Lightbox from '../components/Lightbox'
 
 export default function FounderPage() {
   const { id } = useParams()
@@ -12,6 +13,7 @@ export default function FounderPage() {
   const [newPost, setNewPost] = useState('')
   const [posting, setPosting] = useState(false)
   const [mediaFile, setMediaFile] = useState(null)
+  const [lightboxSrc, setLightboxSrc] = useState(null)
 
   useEffect(() => {
     const init = async () => {
@@ -106,8 +108,23 @@ export default function FounderPage() {
         {/* Left — static profile */}
         <div>
           <div style={{ marginBottom: 40 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-              <h1 className="page-title">{profile.full_name}</h1>
+  {profile.avatar_url && (
+    <img
+      src={profile.avatar_url}
+      alt={profile.full_name}
+      onClick={() => setLightboxSrc(profile.avatar_url)}
+      style={{
+        width: 80,
+        height: 80,
+        borderRadius: '50%',
+        objectFit: 'cover',
+        cursor: 'zoom-in',
+        marginBottom: 20
+      }}
+    />
+  )}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+        <h1 className="page-title">{profile.full_name}</h1>
               {profile.cofounder_type && (
                 <span style={{
                   fontSize: 10,
