@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import Directory from './pages/Directory'
 import FounderPage from './pages/FounderPage'
+import Contacts from './pages/Contacts'
 
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
@@ -19,6 +20,7 @@ createRoot(document.getElementById('root')).render(
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/directory" element={<Directory />} />
       <Route path="/founder/:id" element={<FounderPage />} />
+      <Route path="/contacts" element={<Contacts />} />
     </Routes>
   </BrowserRouter>
 )

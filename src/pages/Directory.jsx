@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import Layout from '../components/Layout'
 import Lightbox from '../components/Lightbox'
+import ContactButton from '../components/ContactButton'
 
 const COFOUNDER_TYPES = ['All', 'Technical', 'Non-technical', 'Hybrid']
 
@@ -13,25 +14,38 @@ export default function Directory() {
   const [typeFilter, setTypeFilter] = useState('All')
   const [user, setUser] = useState(null)
   const [lightboxSrc, setLightboxSrc] = useState(null)
+  const [requestMap, setRequestMap] = useState({})
+  const [contacts, setContacts] = useState(new Set())
 
   useEffect(() => {
-    const init = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      if (!session) { window.location.href = '/'; return }
-      setUser(session.user)
+  const init = async () => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) { window.location.href = '/'; return }
+    setUser(session.user)
 
-      const { data } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('is_complete', true)
-        .order('created_at', { ascending: false })
+    const { data } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('is_complete', true)
+      .order('created_at', { ascending: false })
 
-      setProfiles(data || [])
-      setFiltered(data || [])
-      setLoading(false)
-    }
-    init()
-  }, [])
+    setProfiles(data || [])
+    setFiltered(data || [])
+
+    // Fetch existing requests sent by current user
+    const { data: requests } = await supabase
+      .from('contact_requests')
+      .select('*')
+      .eq('sender_id', session.user.id)
+
+    const requestMap = {}
+    requests?.forEach(r => { requestMap[r.receiver_id] = r })
+    setRequestMap(requestMap)
+
+    setLoading(false)
+  }
+  init()
+}, [])
 
   useEffect(() => {
     let results = profiles
@@ -62,6 +76,7 @@ export default function Directory() {
     </div>
   )
 
+  
   return (
     <Layout>
 
@@ -202,6 +217,11 @@ export default function Directory() {
                     </a>
                   )}
                 </div>
+                {user && profile.id !== user.id && (
+                <div style={{ marginTop: 8 }}>
+                  <ContactButton currentUser={user} targetProfile={profile} />
+                </div>
+              )}
               </div>
             ))}
           </div>

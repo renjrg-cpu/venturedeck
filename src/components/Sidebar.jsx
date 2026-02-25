@@ -20,6 +20,7 @@ export default function Sidebar({ isOpen, onClose }) {
   const links = [
     { label: 'Directory', href: '/directory' },
     { label: 'My Profile', href: '/profile' },
+    { label: 'Your Contacts', href: '/contacts' },
     { label: 'Idea Board', href: '/ideas' },
   ]
 

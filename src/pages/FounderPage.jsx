@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import Layout from '../components/Layout'
 import Lightbox from '../components/Lightbox'
+import ContactButton from '../components/ContactButton'
 
 export default function FounderPage() {
   const { id } = useParams()
@@ -145,6 +146,11 @@ export default function FounderPage() {
                 {[profile.university, profile.institution].filter(Boolean).join(' · ')}
               </p>
             )}
+            {!isOwner && (
+                <div style={{ marginTop: 16 }}>
+                  <ContactButton currentUser={currentUser} targetProfile={profile} />
+                </div>
+              )}
           </div>
 
           <Section label="Bio" content={profile.bio} />
