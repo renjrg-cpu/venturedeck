@@ -3,6 +3,7 @@ import { supabase } from '../supabase'
 import Layout from '../components/Layout'
 import Lightbox from '../components/Lightbox'
 import ContactButton from '../components/ContactButton'
+import ChatDrawer from '../components/ChatDrawer'
 
 const COFOUNDER_TYPES = ['All', 'Technical', 'Non-technical', 'Hybrid']
 
@@ -16,6 +17,7 @@ export default function Directory() {
   const [lightboxSrc, setLightboxSrc] = useState(null)
   const [requestMap, setRequestMap] = useState({})
   const [contacts, setContacts] = useState(new Set())
+  const [chatTarget, setChatTarget] = useState(null)
 
   useEffect(() => {
   const init = async () => {
@@ -218,8 +220,24 @@ export default function Directory() {
                   )}
                 </div>
                 {user && profile.id !== user.id && (
-                <div style={{ marginTop: 8 }}>
+                <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 12 }}>
                   <ContactButton currentUser={user} targetProfile={profile} />
+                  <button
+                    onClick={() => setChatTarget(profile)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--gray-text)',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                  </button>
                 </div>
               )}
               </div>
@@ -229,6 +247,12 @@ export default function Directory() {
       }
       </div>
       <Lightbox src={lightboxSrc} onClose={() => setLightboxSrc(null)} />
+      <ChatDrawer
+        isOpen={!!chatTarget}
+        onClose={() => setChatTarget(null)}
+        currentUser={user}
+        targetProfile={chatTarget}
+      />
     </Layout>
   )
 }

@@ -4,6 +4,7 @@ import { supabase } from '../supabase'
 import Layout from '../components/Layout'
 import Lightbox from '../components/Lightbox'
 import ContactButton from '../components/ContactButton'
+import ChatDrawer from '../components/ChatDrawer'
 
 export default function FounderPage() {
   const { id } = useParams()
@@ -15,6 +16,7 @@ export default function FounderPage() {
   const [posting, setPosting] = useState(false)
   const [mediaFile, setMediaFile] = useState(null)
   const [lightboxSrc, setLightboxSrc] = useState(null)
+  const [chatOpen, setChatOpen] = useState(false)
 
   useEffect(() => {
     const init = async () => {
@@ -147,10 +149,26 @@ export default function FounderPage() {
               </p>
             )}
             {!isOwner && (
-                <div style={{ marginTop: 16 }}>
-                  <ContactButton currentUser={currentUser} targetProfile={profile} />
-                </div>
-              )}
+              <div style={{ marginTop: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+                <ContactButton currentUser={currentUser} targetProfile={profile} />
+                <button
+                  onClick={() => setChatOpen(true)}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--gray-text)',
+                    padding: 0,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
 
           <Section label="Bio" content={profile.bio} />
@@ -269,33 +287,42 @@ export default function FounderPage() {
                       {post.content}
                     </p>
                   )}
-                  {post.media_url && post.media_type && post.media_type.startsWith('image/') && (
-                    <img
-                      src={post.media_url}
-                      alt="attachment"
-                      style={{ width: '100%', maxHeight: 300, objectFit: 'cover' }}
-                    />
-                  )}
-                  {post.media_url && post.media_type === 'application/pdf' && (
-                    <a
-                      href={post.media_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase' }}
-                    >
-                      View PDF
-                    </a>
-                  )}
-                  {post.media_url && post.media_type && !post.media_type.startsWith('image/') && post.media_type !== 'application/pdf' && (
-                    <a
-                      href={post.media_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ fontSize: 12, letterSpacing: '0.06em', textTransform: 'uppercase' }}
-                    >
-                      Download attachment
-                    </a>
-                  )}
+                  {post.media_url && post.media_type && (
+                  <>
+                    {post.media_type.startsWith('image/') && (
+                      <img
+                        src={post.media_url}
+                        alt="attachment"
+                        style={{ width: '100%', maxHeight: 300, objectFit: 'cover' }}
+                      />
+                    )}
+
+                    {post.media_type.startsWith('video/') && (
+                      <video
+                        src={post.media_url}
+                        controls
+                        style={{ width: '100%', maxHeight: 300, background: 'var(--gray-light)' }}
+                      />
+                    )}
+
+                    {post.media_type === 'application/pdf' && (
+                      <iframe
+                        src={post.media_url}
+                        title="PDF viewer"
+                        style={{ width: '100%', height: 400, border: 'none' }}
+                      />
+                    )}
+
+                    {(post.media_type === 'application/vnd.ms-powerpoint' ||
+                      post.media_type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') && (
+                      <iframe
+                        src={`https://docs.google.com/gview?url=${encodeURIComponent(post.media_url)}&embedded=true`}
+                        title="Presentation viewer"
+                        style={{ width: '100%', height: 400, border: 'none' }}
+                      />
+                    )}
+                  </>
+                )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: 11, color: 'var(--gray-text)', letterSpacing: '0.04em' }}>
                       {new Date(post.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -316,6 +343,12 @@ export default function FounderPage() {
         </div>
 
       </div>
+      <ChatDrawer
+        isOpen={chatOpen}
+        onClose={() => setChatOpen(false)}
+        currentUser={currentUser}
+        targetProfile={profile}
+      />
     </Layout>
   )
 }

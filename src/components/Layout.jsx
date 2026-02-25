@@ -2,16 +2,20 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../supabase'
 import Sidebar from './Sidebar'
 import NotificationsDrawer from './NotificationsDrawer'
+import InboxDrawer from './InboxDrawer'
 
 export default function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [inboxOpen, setInboxOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
 
   useEffect(() => {
     const fetchUnread = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return
+      setCurrentUser(session.user)
 
       const { count } = await supabase
         .from('notifications')
@@ -49,30 +53,36 @@ export default function Layout({ children }) {
         isOpen={notificationsOpen}
         onClose={() => setNotificationsOpen(false)}
       />
+      <InboxDrawer
+        isOpen={inboxOpen}
+        onClose={() => setInboxOpen(false)}
+        currentUser={currentUser}
+      />
 
       {/* Top navbar */}
       <nav className="navbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <button
-            onClick={() => setSidebarOpen(true)}
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '4px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 5
-            }}
-          >
-            <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
-            <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
-            <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
-          </button>
-          <a href="/directory" className="navbar-logo">VentureDeck</a>
-        </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        <button
+          onClick={() => setSidebarOpen(true)}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '4px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 5
+          }}
+        >
+          <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
+          <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
+          <span style={{ display: 'block', width: 22, height: 1, background: 'var(--black)' }} />
+        </button>
+        <a href="/directory" className="navbar-logo">VentureDeck</a>
+      </div>
 
-        {/* Bell icon */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+        {/* Bell */}
         <button
           onClick={handleOpenNotifications}
           style={{
@@ -102,7 +112,27 @@ export default function Layout({ children }) {
             }} />
           )}
         </button>
-      </nav>
+
+        {/* Inbox */}
+        <button
+          onClick={() => setInboxOpen(true)}
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 4,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--black)'
+          }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
 
       {children}
     </>
